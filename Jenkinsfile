@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.12-slim'
-            args '-u root:root -v $HOME/.cache/pip:/root/.cache/pip'
-        }
-    }
+    agent any
 
     environment {
         PIP_DISABLE_PIP_VERSION_CHECK = '1'
@@ -13,7 +8,6 @@ pipeline {
 
     options {
         timestamps()
-        ansiColor('xterm')
     }
 
     stages {
@@ -23,23 +17,23 @@ pipeline {
             }
         }
 
-        stage('Install dependencies') {
+        stage('Build and Test in Docker') {
             steps {
                 sh '''
                     set -eux
-                    python -m pip install --upgrade pip
-                    pip install -r requirement.txt
-                    playwright install --with-deps chromium
-                '''
-            }
-        }
-
-        stage('Run pytest-bdd suite') {
-            steps {
-                sh '''
-                    set -eux
-                    mkdir -p report
-                    pytest -v --html=report/report.html --self-contained-html
+                    docker run --rm \
+                        -v "$PWD":/workspace \
+                        -w /workspace \
+                        -v "$HOME/.cache/pip":/root/.cache/pip \
+                        python:3.12-slim \
+                        bash -c "
+                            set -eux
+                            python -m pip install --upgrade pip
+                            pip install -r requirement.txt
+                            playwright install --with-deps chromium
+                            mkdir -p report
+                            pytest -v --html=report/report.html --self-contained-html
+                        "
                 '''
             }
         }
