@@ -1,0 +1,5 @@
+pytest-bdd
+pytest
+playwright
+pytest-playwright
+pytest-bdd-codegen
