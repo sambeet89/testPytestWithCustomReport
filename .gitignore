@@ -16,3 +16,8 @@ env/
 
 # Logs
 *.log
+
+# Test reports
+report/
+report/**
+
