@@ -21,6 +21,16 @@ pipeline {
             steps {
                 sh '''
                     set -eux
+                    req_file=""
+                    if [ -f requirement.txt ]; then
+                        req_file="requirement.txt"
+                    elif [ -f requirements.txt ]; then
+                        req_file="requirements.txt"
+                    else
+                        echo "No requirement.txt or requirements.txt found in $PWD"
+                        exit 1
+                    fi
+
                     docker run --rm \
                         -v "$PWD":/workspace \
                         -w /workspace \
@@ -28,7 +38,7 @@ pipeline {
                         bash -c "
                             set -eux
                             python -m pip install --upgrade pip
-                            pip install -r requirement.txt
+                            pip install -r "$req_file"
                             playwright install --with-deps chromium
                             mkdir -p report
                             pytest -v --html=report/report.html --self-contained-html
