@@ -36,18 +36,19 @@ pipeline {
                         -w /workspace \
                         -e REQ_FILE="$req_file" \
                         python:3.12-slim \
-                        bash -c "
+                        bash -c '
                             set -eux
-                            python -m pip install --upgrade pip
-                            if [ -z \"\$REQ_FILE\" ] || [ ! -f \"\$REQ_FILE\" ]; then
-                                echo \"Expected requirements file \$REQ_FILE not found inside container\"
+                            : "${REQ_FILE:?Expected requirements file name passed in REQ_FILE}"
+                            if [ ! -f "$REQ_FILE" ]; then
+                                echo "Expected requirements file $REQ_FILE not found inside container"
                                 exit 1
                             fi
-                            pip install -r \"\$REQ_FILE\"
+                            python -m pip install --upgrade pip
+                            pip install -r "$REQ_FILE"
                             playwright install --with-deps chromium
                             mkdir -p report
                             pytest -v --html=report/report.html --self-contained-html
-                        "
+                        '
                 '''
             }
         }
