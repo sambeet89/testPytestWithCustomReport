@@ -13,6 +13,7 @@ Feature: this is a test festure
         |data|
         |10|
         |20|
+      
 
     @regression1
     Scenario Outline:
