@@ -17,42 +17,29 @@ pipeline {
             }
         }
 
-        stage('Build and Test in Docker') {
+        stage('Build and Test') {
             steps {
                 sh '''
                     set -eux
                     
                     # Determine correct requirements file
                     req_file=""
-                    if [ -f "${WORKSPACE}/requirement.txt" ]; then
+                    if [ -f requirement.txt ]; then
                         req_file="requirement.txt"
-                    elif [ -f "${WORKSPACE}/requirements.txt" ]; then
+                    elif [ -f requirements.txt ]; then
                         req_file="requirements.txt"
                     else
-                        echo "No requirement.txt or requirements.txt found in ${WORKSPACE}"
+                        echo "No requirement.txt or requirements.txt found in $PWD"
                         exit 1
                     fi
-
-                    docker run --rm \
-                        -v "${WORKSPACE}":/workspace \
-                        -w /workspace \
-                        -e REQ_FILE="$req_file" \
-                        python:3.12-slim \
-                        bash -c '
-                            set -eux
-                            : "${REQ_FILE:?Expected requirements file name passed in REQ_FILE}"
-                            
-                            if [ ! -f "$REQ_FILE" ]; then
-                                echo "Expected requirements file $REQ_FILE not found inside container"
-                                exit 1
-                            fi
-
-                            python -m pip install --upgrade pip
-                            pip install -r "$REQ_FILE"
-                            playwright install --with-deps chromium
-                            mkdir -p report
-                            pytest -v --html=report/report.html --self-contained-html
-                        '
+                    
+                    python3 -m venv .venv
+                    . .venv/bin/activate
+                    python -m pip install --upgrade pip
+                    pip install -r "$req_file"
+                    playwright install --with-deps chromium
+                    mkdir -p report
+                    pytest -v --html=report/report.html --self-contained-html
                 '''
             }
         }
