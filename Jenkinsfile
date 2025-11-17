@@ -24,7 +24,6 @@ pipeline {
                     docker run --rm \
                         -v "$PWD":/workspace \
                         -w /workspace \
-                        -v "$HOME/.cache/pip":/root/.cache/pip \
                         python:3.12-slim \
                         bash -c "
                             set -eux
@@ -45,4 +44,3 @@ pipeline {
         }
     }
 }
-
