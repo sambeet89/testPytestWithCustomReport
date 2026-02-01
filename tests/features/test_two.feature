@@ -3,7 +3,7 @@ Feature: this is a test festure
 
   Background: test bck ground
     Given we are executing background
-
+    And we are executing background
 
 
     @regression2
