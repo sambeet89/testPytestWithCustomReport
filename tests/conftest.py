@@ -16,6 +16,18 @@ def pytest_runtest_makereport(item, call):
             report_extras.append(extras.html(custom_html))
 
     report.extras=report_extras
+def pytest_runtest_makereport2(item, call):
+    output = yield
+    report = output.get_result()
+    report_extras=getattr(report,"extras",[])
+    #my test
+    if report.when=='call':
+        custom_html= getattr(item, "custom_html", None)
+        if custom_html:
+            report_extras.append(extras.html(custom_html))
+
+    report.extras=report_extras
+
 
 
 #learning
